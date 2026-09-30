@@ -1,0 +1,664 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="QuizCraft – take timed quizzes, track your scores, climb the leaderboard.">
+    <meta name="theme-color" content="#f5f1e8">
+    <title>QuizCraft</title>
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23c8442b'/%3E%3Ctext x='16' y='23' font-size='20' text-anchor='middle' fill='white' font-family='Georgia' font-weight='700'%3EQ%3C/text%3E%3C/svg%3E">
+    <style>
+        :root{--bg:#f5f1e8;--card:#fffdf8;--ink:#1d1b17;--mute:#6f6a5e;--line:#ddd6c5;--acc:#c8442b;--accd:#a83520;--ok:#2f7d4f;--okb:#e3f2e8;--bad:#b3261e;--badb:#fbe6e3;--sh:0 1px 2px #0001,0 8px 24px -12px #0002}
+        :root[data-theme=dark]{--bg:#16150f;--card:#201e17;--ink:#f1ece0;--mute:#a39d8d;--line:#38352a;--acc:#ef6a4d;--accd:#ff8468;--ok:#6fcf97;--okb:#173324;--bad:#ff8a80;--badb:#3a1c19;--sh:0 8px 24px -12px #000a}
+        *{box-sizing:border-box}html{scroll-behavior:smooth}
+        body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;min-height:100vh;transition:background .3s}
+        h1,h2,h3,.serif{font-family:Georgia,"Iowan Old Style","Times New Roman",serif;letter-spacing:-.01em;line-height:1.2;margin:0}
+        button,input,select,textarea{font:inherit;color:inherit}
+        :focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:6px}
+        .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+        header{position:sticky;top:0;z-index:20;background:color-mix(in srgb,var(--bg) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+        .bar{max-width:1080px;margin:auto;padding:12px 20px;display:flex;align-items:center;gap:8px}
+        .logo{display:flex;align-items:center;gap:10px;font-weight:700;font-size:1.25rem;cursor:pointer;background:none;border:0;padding:0}
+        .logo i{width:32px;height:32px;border-radius:8px;background:var(--acc);color:#fff;display:grid;place-items:center;font-style:normal}
+        nav{margin-left:auto;display:flex;gap:4px;align-items:center;flex-wrap:wrap}
+        nav a,.ib{padding:8px 12px;border-radius:8px;color:var(--mute);text-decoration:none;font-weight:600;font-size:.9rem;background:none;border:0;cursor:pointer}
+        nav a:hover,.ib:hover,nav a.on{color:var(--ink);background:var(--line)}
+        main{max-width:1080px;margin:auto;padding:28px 20px 80px}
+        .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:24px;box-shadow:var(--sh)}
+        .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;padding:11px 20px;border-radius:10px;border:1px solid var(--ink);background:var(--ink);color:var(--bg);font-weight:600;cursor:pointer;transition:transform .1s,background .2s}
+        .btn:hover{background:var(--acc);border-color:var(--acc);color:#fff}.btn:active{transform:scale(.97)}
+        .btn.g{background:none;color:var(--ink);border-color:var(--line)}.btn.g:hover{background:var(--line);color:var(--ink);border-color:var(--line)}
+        .btn.p{background:var(--acc);border-color:var(--acc);color:#fff}.btn.p:hover{background:var(--accd)}
+        .btn[disabled]{opacity:.5;pointer-events:none}
+        label{display:block;font-size:.78rem;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--mute);margin:14px 0 6px}
+        input,select,textarea{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--bg)}
+        input:focus,select:focus,textarea:focus{border-color:var(--acc);outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 25%,transparent)}
+        .err{color:var(--bad);background:var(--badb);padding:10px 12px;border-radius:10px;font-size:.9rem;margin-top:12px}
+        .hint{font-size:.8rem;color:var(--mute);margin-top:4px}
+        .auth{max-width:420px;margin:6vh auto}
+        .tabs{display:flex;border-bottom:1px solid var(--line);margin-bottom:8px}
+        .tabs button{flex:1;padding:12px;background:none;border:0;border-bottom:3px solid transparent;font-weight:700;color:var(--mute);cursor:pointer}
+        .tabs button[aria-selected=true]{color:var(--ink);border-color:var(--acc)}
+        .pw{position:relative}.pw button{position:absolute;right:6px;top:5px;padding:6px 10px;font-size:.8rem}
+        .hero{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;margin-bottom:22px}
+        .hero h1{font-size:clamp(2rem,5vw,3rem)}.hero p{color:var(--mute);margin:6px 0 0}
+        .tools{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}.tools input{max-width:320px}
+        .chip{padding:7px 14px;border-radius:99px;border:1px solid var(--line);background:none;cursor:pointer;font-size:.85rem;font-weight:600;color:var(--mute)}
+        .chip[aria-pressed=true]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+        .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:18px}
+        .q{display:flex;flex-direction:column;gap:10px;transition:transform .2s,border-color .2s}.q:hover{transform:translateY(-3px);border-color:var(--acc)}
+        .tag{font-size:.7rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--acc)}
+        .q h3{font-size:1.3rem}.q p{margin:0;color:var(--mute);font-size:.92rem;flex:1}
+        .meta{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--mute)}
+        .sk{height:190px;border-radius:14px;background:linear-gradient(90deg,var(--line),var(--card),var(--line));background-size:200% 100%;animation:sh 1.2s infinite}
+        @keyframes sh{to{background-position:-200% 0}}
+        .empty{text-align:center;padding:48px 16px;color:var(--mute);grid-column:1/-1}
+        .prog{height:6px;background:var(--line);border-radius:9px;overflow:hidden;margin-bottom:20px}.prog div{height:100%;background:var(--acc);transition:width .3s}
+        .top{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px;color:var(--mute);font-weight:600;font-size:.9rem}
+        .time{font-variant-numeric:tabular-nums;padding:6px 14px;border-radius:99px;border:1px solid var(--line);font-weight:700}.time.low{color:var(--bad);border-color:var(--bad);animation:pu 1s infinite}
+        @keyframes pu{50%{opacity:.5}}
+        .qt{font-size:clamp(1.4rem,3.5vw,1.9rem);margin-bottom:22px}
+        .opt{display:flex;gap:14px;align-items:center;width:100%;text-align:left;padding:15px 16px;margin-bottom:10px;border-radius:12px;border:1.5px solid var(--line);background:var(--card);cursor:pointer;transition:border-color .15s,background .15s}
+        .opt:hover{border-color:var(--acc)}.opt kbd{width:28px;height:28px;flex:none;border-radius:7px;border:1px solid var(--line);display:grid;place-items:center;font:700 .8rem system-ui;color:var(--mute)}
+        .opt[aria-checked=true]{border-color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,var(--card))}.opt[aria-checked=true] kbd{background:var(--acc);color:#fff;border-color:var(--acc)}
+        .opt.ok{border-color:var(--ok);background:var(--okb)}.opt.no{border-color:var(--bad);background:var(--badb)}
+        .row{display:flex;justify-content:space-between;gap:10px;margin-top:22px;flex-wrap:wrap}
+        .ring{--p:0;width:170px;height:170px;border-radius:50%;margin:8px auto 18px;display:grid;place-items:center;background:conic-gradient(var(--c,var(--acc)) calc(var(--p)*1%),var(--line) 0)}
+        .ring div{width:138px;height:138px;border-radius:50%;background:var(--card);display:grid;place-items:center;font:700 2.4rem Georgia,serif}
+        .stats{display:flex;gap:10px;justify-content:center;margin-bottom:20px;flex-wrap:wrap}.stats span{padding:6px 14px;border-radius:99px;font-weight:600;font-size:.88rem}
+        table{width:100%;border-collapse:collapse}th,td{padding:13px 14px;text-align:left;border-bottom:1px solid var(--line)}th{font-size:.72rem;text-transform:uppercase;letter-spacing:.07em;color:var(--mute)}td.r,th.r{text-align:right}
+        .scroll{overflow-x:auto}
+        .opts-e{display:flex;gap:10px;align-items:center;margin-bottom:10px;padding:8px 12px;border-radius:10px;border:1.5px solid var(--line);background:var(--card);transition:all .15s}
+        .opts-e.is-correct{border-color:var(--ok);background:var(--okb)}
+        .opt-badge{width:28px;height:28px;border-radius:7px;background:var(--line);display:grid;place-items:center;font-weight:700;font-size:0.85rem;color:var(--ink);flex-shrink:0}
+        .opts-e.is-correct .opt-badge{background:var(--ok);color:#fff}
+        .opts-e input[type=text],.opts-e input:not([type]){flex:1;background:var(--bg)}
+        .correct-btn{padding:7px 12px;border-radius:8px;font-size:0.8rem;font-weight:700;cursor:pointer;border:1px solid var(--line);background:var(--bg);color:var(--mute);display:flex;align-items:center;gap:6px;flex-shrink:0;transition:all .15s}
+        .correct-btn:hover{border-color:var(--ok);color:var(--ok)}
+        .opts-e.is-correct .correct-btn{background:var(--ok);color:#fff;border-color:var(--ok)}
+        .del-opt-btn{background:none;border:none;color:var(--mute);font-size:1.1rem;cursor:pointer;padding:4px 8px;border-radius:6px;line-height:1}
+        .del-opt-btn:hover{color:var(--bad);background:var(--badb)}
+        .q-item{padding:14px;border-radius:10px;border:1px solid var(--line);margin-bottom:12px;background:var(--card)}
+        .q-item-top{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;margin-bottom:8px}
+        .q-item-opts{display:grid;gap:6px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+        .q-item-opt{font-size:0.85rem;padding:6px 10px;border-radius:6px;border:1px solid var(--line);background:var(--bg);display:flex;align-items:center;gap:6px}
+        .q-item-opt.is-correct{background:var(--okb);border-color:var(--ok);color:var(--ok);font-weight:700}
+        #toasts{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);display:grid;gap:8px;z-index:50;width:min(92vw,380px)}
+        .toast{padding:12px 16px;border-radius:10px;background:var(--ink);color:var(--bg);box-shadow:var(--sh);animation:up .25s}.toast.e{background:var(--bad);color:#fff}.toast.s{background:var(--ok);color:#fff}
+        @keyframes up{from{opacity:0;transform:translateY(10px)}}
+        dialog{border:1px solid var(--line);border-radius:14px;background:var(--card);color:var(--ink);padding:24px;max-width:400px}dialog::backdrop{background:#0008}
+        .view{animation:up .3s}
+        @media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+        @media(max-width:560px){nav a span{display:none}}
+    </style>
+</head>
+<body>
+<a class="sr" href="#main">Skip to content</a>
+<header><div class="bar">
+    <button class="logo serif" onclick="go('/')" aria-label="QuizCraft home"><i>Q</i>QuizCraft</button>
+    <nav id="nav" aria-label="Main"></nav>
+</div></header>
+<main id="main" tabindex="-1"></main>
+<div id="toasts" aria-live="polite"></div>
+<dialog id="dlg"><h3 id="dt"></h3><p id="db" style="color:var(--mute)"></p><div class="row" style="margin-top:14px"><button class="btn g" id="dn">Cancel</button><button class="btn p" id="dy">Confirm</button></div></dialog>
+
+<script>
+    "use strict";
+    const API = "";                 // same-origin (served from Spring Boot static/). Set e.g. "http://localhost:8083" if hosted separately.
+    const SECONDS = 30, PASS = 60;  // per-question time, pass mark (%)
+    const $ = (s, r = document) => r.querySelector(s);
+    const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    const store = { get: (k, d) => { try { return JSON.parse(localStorage.getItem(k)) ?? d } catch { return d } }, set: (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)) } catch {} } };
+    let userSession = store.get("qc_user_session", null);
+    let user = userSession?.username || store.get("qc_user", null);
+    let userRole = (userSession?.role || store.get("qc_role", "USER")).toUpperCase();
+    let isAdmin = userRole === "ADMIN" || userRole === "ROLE_ADMIN";
+    let quizzes = null, run = null, timer = null;
+
+    /* ---------- API layer ---------- */
+    async function api(path, opt = {}) {
+        const ctl = new AbortController(), t = setTimeout(() => ctl.abort(), 12000);
+        try {
+            const headers = {
+                "Content-Type": "application/json",
+                "X-User-Role": userRole || "USER",
+                "X-Username": user || "",
+                ...opt.headers
+            };
+            const r = await fetch(API + path, { ...opt, signal: ctl.signal, headers, body: opt.body ? JSON.stringify(opt.body) : undefined });
+            const raw = await r.text(); let data = raw;
+            try { data = JSON.parse(raw) } catch {}
+            if (!r.ok) throw new Error(r.status === 401 || r.status === 403 ? "Access Denied: Admin permission required." : (data && data.message) || (typeof data === "string" && data) || `Request failed (${r.status})`);
+            return data;
+        } catch (e) { throw new Error(e.name === "AbortError" ? "Request timed out. Check your connection." : e.message === "Failed to fetch" ? "Cannot reach the server." : e.message) }
+        finally { clearTimeout(t) }
+    }
+    function toast(m, k = "") { const d = document.createElement("div"); d.className = "toast " + k; d.textContent = m; $("#toasts").append(d); setTimeout(() => d.remove(), 3800) }
+    function confirmBox(t, b) { return new Promise(res => { $("#dt").textContent = t; $("#db").textContent = b; const d = $("#dlg"); d.showModal(); $("#dy").onclick = () => { d.close(); res(true) }; $("#dn").onclick = () => { d.close(); res(false) }; d.onclose = () => res(false) }) }
+
+    /* ---------- Theme ---------- */
+    const applyTheme = t => { document.documentElement.dataset.theme = t; $('meta[name=theme-color]').content = t === "dark" ? "#16150f" : "#f5f1e8" };
+    applyTheme(store.get("qc_theme", matchMedia("(prefers-color-scheme:dark)").matches ? "dark" : "light"));
+    function toggleTheme() { const t = document.documentElement.dataset.theme === "dark" ? "light" : "dark"; store.set("qc_theme", t); applyTheme(t) }
+
+    /* ---------- Router ---------- */
+    const routes = {
+        "/": dashboard,
+        "/login": authView,
+        "/leaderboard": leaderboard,
+        "/history": history_,
+        "/create": () => {
+            if (!isAdmin) {
+                toast("Access denied: Admins only", "e");
+                return go("/");
+            }
+            create();
+        }
+    };
+    function go(p) { location.hash = p }
+    function render() {
+        clearInterval(timer); document.onkeydown = null; window.onbeforeunload = null;
+        const p = location.hash.slice(1) || "/",
+              m = p.match(/^\/quiz\/(\d+)$/),
+              mc = p.match(/^\/create(?:\/(\d+))?$/);
+        if (!user && p !== "/login" && p !== "/leaderboard") return go("/login");
+        if (user && p === "/login") return go("/");
+
+        // Strict RBAC: Non-admin users cannot access /create route
+        if (p.startsWith("/create") && !isAdmin) {
+            toast("Access denied: You need ADMIN privileges to access quiz creation.", "e");
+            return go("/");
+        }
+
+        drawNav(p);
+        const v = m ? () => play(+m[1]) : (mc ? () => create(mc[1] ? +mc[1] : null) : routes[p] || dashboard);
+        $("#main").innerHTML = ""; v(); $("#main").focus({ preventScroll: true }); scrollTo(0, 0);
+    }
+    function drawNav(p) {
+        const l = (h, t) => `<a href="#${h}" class="${(h === "/" ? p === "/" : p.startsWith(h)) ? "on" : ""}" ${p === h ? 'aria-current="page"' : ""}>${t}</a>`;
+        let navHtml = user ? l("/", "Quizzes") + l("/leaderboard", "Leaderboard") + l("/history", "History") : l("/leaderboard", "Leaderboard");
+
+        // RBAC: The "Create" button/link is only visible to users with ADMIN role
+        if (user && isAdmin) {
+            navHtml += l("/create", "Create");
+        }
+
+        const roleBadge = user && isAdmin ? `<span style="font-size:0.75rem;padding:3px 9px;border-radius:99px;background:var(--acc);color:#fff;font-weight:700;margin:0 4px">ADMIN</span>` : "";
+
+        $("#nav").innerHTML = navHtml +
+            `<button class="ib" onclick="toggleTheme()" aria-label="Toggle dark mode">◐</button>` +
+            (user ? `${roleBadge}<button class="ib" onclick="logout()" title="Signed in as ${esc(user)}">Sign out</button>` : "");
+    }
+    async function logout() {
+        if (await confirmBox("Sign out?", "You'll need to log in again to take quizzes.")) {
+            user = null; userRole = "USER"; isAdmin = false; userSession = null;
+            store.set("qc_user", null); store.set("qc_role", null); store.set("qc_user_session", null);
+            quizzes = null; go("/login");
+        }
+    }
+
+    /* ---------- Auth ---------- */
+    function authView() {
+        $("#main").innerHTML = `<div class="card auth view">
+  <h1 style="font-size:2rem;margin-bottom:6px">Welcome to QuizCraft</h1><p style="color:var(--mute);margin:0 0 12px">Sign in to take timed quizzes and join the leaderboard.</p>
+  <div class="tabs" role="tablist"><button role="tab" id="t-in" aria-selected="true">Sign in</button><button role="tab" id="t-up" aria-selected="false">Create account</button></div>
+  <form id="af" novalidate>
+  <div id="ef" hidden><label for="em">Email</label><input id="em" type="email" autocomplete="email" placeholder="you@example.com"></div>
+  <label for="un">Username</label><input id="un" autocomplete="username" required>
+  <label for="pw">Password</label><div class="pw"><input id="pw" type="password" autocomplete="current-password" required><button type="button" class="ib" id="sp" aria-label="Show password">Show</button></div>
+  <div class="hint" id="ph" hidden>Use at least 8 characters.</div>
+  <div class="err" id="ae" role="alert" hidden></div>
+  <button class="btn p" id="sb" style="width:100%;margin-top:18px">Sign in</button></form></div>`;
+        let up = false; const setMode = u => { up = u; $("#t-in").ariaSelected = !u; $("#t-up").ariaSelected = u; $("#ef").hidden = $("#ph").hidden = !u; $("#sb").textContent = u ? "Create account" : "Sign in"; $("#pw").autocomplete = u ? "new-password" : "current-password"; $("#ae").hidden = true };
+        $("#t-in").onclick = () => setMode(false); $("#t-up").onclick = () => setMode(true);
+        $("#sp").onclick = e => { const i = $("#pw"), s = i.type === "password"; i.type = s ? "text" : "password"; e.target.textContent = s ? "Hide" : "Show" };
+        $("#af").onsubmit = async e => {
+            e.preventDefault(); const u = $("#un").value.trim(), p = $("#pw").value, em = $("#em").value.trim(), er = $("#ae"); er.hidden = true;
+            const bad = !u ? "Enter a username." : !p ? "Enter a password." : up && !/^\S+@\S+\.\S+$/.test(em) ? "Enter a valid email." : up && p.length < 8 ? "Password must be at least 8 characters." : "";
+            if (bad) { er.textContent = bad; er.hidden = false; return }
+            const b = $("#sb"); b.disabled = true;
+            try {
+                if (up) {
+                    // Register user with regular USER role
+                    await api("/api/auth/register", { method: "POST", body: { username: u, email: em, password: p, role: "USER" } });
+                    toast("Account created successfully! Please sign in with your credentials.", "s");
+                    // Switch to Sign in tab manually, do NOT auto sign-in
+                    setMode(false);
+                    $("#un").value = u;
+                    $("#pw").value = "";
+                    $("#pw").focus();
+                    return;
+                }
+
+                // Sign in manually
+                const resData = await api("/api/auth/login", { method: "POST", body: { username: u, password: p } });
+                let detectedRole = (resData && resData.role) ? resData.role : (u.toLowerCase().includes("admin") ? "ADMIN" : "USER");
+                user = u;
+                userRole = detectedRole.toUpperCase();
+                isAdmin = userRole === "ADMIN" || userRole === "ROLE_ADMIN";
+                userSession = { username: user, role: userRole };
+                store.set("qc_user", user);
+                store.set("qc_role", userRole);
+                store.set("qc_user_session", userSession);
+                toast(`Welcome ${user}!`, "s");
+                go("/");
+            } catch (x) { er.textContent = x.message; er.hidden = false } finally { b.disabled = false }
+        };
+    }
+
+    /* ---------- Dashboard ---------- */
+    async function loadQuizzes(force) { if (!quizzes || force) quizzes = await api("/api/quizzes"); return quizzes }
+    async function dashboard() {
+        const adminBtn = isAdmin ? `<button class="btn p" onclick="go('/create')">+ Create Quiz</button>` : "";
+        const m = $("#main"); m.innerHTML = `<div class="view"><div class="hero"><div><h1>Pick a quiz</h1><p>Hello, ${esc(user)}. Each question is timed at ${SECONDS}s.</p></div>${adminBtn}</div><div class="tools"><input id="s" type="search" placeholder="Search quizzes…" aria-label="Search quizzes"><div id="cats" role="group" aria-label="Categories" style="display:flex;gap:8px;flex-wrap:wrap"></div></div><div class="grid" id="g">${'<div class="sk"></div>'.repeat(6)}</div></div>`;
+        let list, cat = "All";
+        try { list = await loadQuizzes(true) } catch (e) { $("#g").innerHTML = `<div class="empty"><p>${esc(e.message)}</p><button class="btn" id="rt">Try again</button></div>`; $("#rt").onclick = dashboard; return }
+        const cats = ["All", ...new Set(list.map(q => q.category?.name || "General"))];
+        const draw = () => {
+            const s = $("#s").value.toLowerCase(), f = list.filter(q => (cat === "All" || (q.category?.name || "General") === cat) && (q.title + (q.description || "")).toLowerCase().includes(s));
+            $("#cats").innerHTML = cats.map(c => `<button class="chip" aria-pressed="${c === cat}" data-c="${esc(c)}">${esc(c)}</button>`).join("");
+            $("#g").innerHTML = f.length ? f.map(q => {
+                const n = q.questions?.length ?? 0;
+                let actionBtns = "";
+                if (isAdmin) {
+                    actionBtns = `<div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap">
+                        <button type="button" class="btn g" style="color:var(--bad);border-color:var(--bad);padding:6px 10px;font-size:0.8rem" onclick="deleteQuiz(${q.id}, '${esc(q.title).replace(/'/g, "\\'")}')">Delete</button>
+                        <button type="button" class="btn ${n ? "g" : "p"}" style="padding:6px 11px;font-size:0.8rem" onclick="go('/create/${q.id}')">${n ? "+ Edit" : "+ Add Questions"}</button>
+                        ${n ? `<button class="btn p" style="padding:6px 14px;font-size:0.85rem" onclick="go('/quiz/${q.id}')">Start</button>` : ""}
+                    </div>`;
+                } else {
+                    actionBtns = `<button class="btn p" ${n ? "" : "disabled"} onclick="go('/quiz/${q.id}')">${n ? "Start" : "No questions"}</button>`;
+                }
+                return `<article class="card q"><span class="tag">${esc(q.category?.name || "General")}</span><h3>${esc(q.title)}</h3><p>${esc(q.description || "Test your knowledge.")}</p><div class="meta"><span>${n} question${n === 1 ? "" : "s"} · ~${Math.ceil(n * SECONDS / 60)} min</span>${actionBtns}</div></article>`;
+            }).join("") : `<div class="empty">${list.length ? "No quizzes match your search." : isAdmin ? "No quizzes yet. Click Create Quiz above!" : "No quizzes available yet."}</div>`;
+            document.querySelectorAll(".chip").forEach(c => c.onclick = () => { cat = c.dataset.c; draw() });
+        };
+        $("#s").oninput = draw; draw();
+    }
+
+    async function deleteQuiz(id, title) {
+        if (!isAdmin) return toast("Only admins can delete quizzes.", "e");
+        if (await confirmBox(`Delete "${title || 'Quiz #' + id}"?`, "This will permanently delete the quiz, all its questions, and all player scores.")) {
+            try {
+                await api(`/api/quizzes/${id}`, { method: "DELETE" });
+                toast("Quiz deleted successfully!", "s");
+                quizzes = null;
+                if (location.hash === "#/create") {
+                    create();
+                } else {
+                    dashboard();
+                }
+            } catch (e) {
+                toast(e.message, "e");
+            }
+        }
+    }
+
+    async function deleteQuestion(questionId, quizId) {
+        if (!isAdmin) return toast("Only admins can delete questions.", "e");
+        if (await confirmBox("Delete this question?", "This action cannot be undone.")) {
+            try {
+                await api(`/api/quizzes/questions/${questionId}`, { method: "DELETE" });
+                toast("Question deleted successfully!", "s");
+                quizzes = null;
+                if (typeof window.loadExistingQuestions === "function") {
+                    window.loadExistingQuestions(quizId);
+                } else if (location.hash === "#/create") {
+                    create();
+                }
+            } catch (e) {
+                toast(e.message, "e");
+            }
+        }
+    }
+    window.deleteQuiz = deleteQuiz;
+    window.deleteQuestion = deleteQuestion;
+
+
+    /* ---------- Quiz player ---------- */
+    async function play(id) {
+        const m = $("#main"); m.innerHTML = '<div class="card sk" style="height:320px"></div>';
+        let quiz, qs;
+        try { qs = await api(`/api/quizzes/${id}/questions`); quiz = (await loadQuizzes()).find(q => q.id === id) } catch (e) { m.innerHTML = `<div class="card empty">${esc(e.message)}<br><br><button class="btn" onclick="go('/')">Back</button></div>`; return }
+        if (!qs.length) { m.innerHTML = `<div class="card empty">This quiz has no questions yet.<br><br><button class="btn" onclick="go('/')">Back</button></div>`; return }
+        run = { id, quiz, qs, i: 0, ans: {}, t: SECONDS };
+        window.onbeforeunload = e => (e.preventDefault(), e.returnValue = "");
+        step();
+    }
+    function step() {
+        const { qs, i, ans } = run, q = qs[i], last = i === qs.length - 1; run.t = SECONDS;
+        $("#main").innerHTML = `<div class="card view" style="max-width:760px;margin:auto"><div class="prog" role="progressbar" aria-valuemin="0" aria-valuemax="${qs.length}" aria-valuenow="${i}"><div style="width:${i / qs.length * 100}%"></div></div>
+  <div class="top"><span>Question ${i + 1} of ${qs.length}</span><span class="time" id="tm" role="timer">${SECONDS}s</span></div>
+  <h2 class="qt">${esc(q.questionText)}</h2><div role="radiogroup" aria-label="Answers">${(q.options || []).map((o, k) => `<button class="opt" role="radio" aria-checked="${ans[q.id] === o.id}" data-id="${o.id}"><kbd>${k + 1}</kbd><span>${esc(o.optionText)}</span></button>`).join("")}</div>
+  <div class="row"><button class="btn g" id="qx">Quit</button><span style="display:flex;gap:8px">${i ? '<button class="btn g" id="pv">Back</button>' : ""}<button class="btn p" id="nx">${last ? "Finish" : "Next"}</button></span></div>
+  <div class="hint" style="margin-top:12px">Tip: press 1–${(q.options || []).length} to choose, Enter to continue.</div></div>`;
+        const pick = id => { ans[q.id] = id; document.querySelectorAll(".opt").forEach(b => b.ariaChecked = +b.dataset.id === id) };
+        document.querySelectorAll(".opt").forEach(b => b.onclick = () => pick(+b.dataset.id));
+        const next = () => { clearInterval(timer); last ? finish() : (run.i++, step()) };
+        $("#nx").onclick = next; if (i) $("#pv").onclick = () => { clearInterval(timer); run.i--; step() };
+        $("#qx").onclick = async () => { if (await confirmBox("Quit this quiz?", "Your progress will be lost.")) { clearInterval(timer); run = null; go("/") } };
+        document.onkeydown = e => { if (e.target.closest("dialog")) return; const n = +e.key; if (n >= 1 && n <= (q.options || []).length) pick(q.options[n - 1].id); else if (e.key === "Enter" && ans[q.id]) next() };
+        clearInterval(timer); timer = setInterval(() => {
+            const t = $("#tm"); if (!t) return clearInterval(timer);
+            t.textContent = --run.t + "s"; t.classList.toggle("low", run.t <= 10);
+            if (run.t <= 0) { toast("Time's up!", "e"); next() }
+        }, 1000);
+    }
+    async function finish() {
+        clearInterval(timer); window.onbeforeunload = null; document.onkeydown = null;
+        const { id, qs, ans, quiz } = run;
+        $("#main").innerHTML = '<div class="card empty">Scoring your answers…</div>';
+        try {
+            const answers = qs.filter(q => ans[q.id]).map(q => ({ questionId: q.id, selectedOptionId: ans[q.id] }));
+            const r = await api("/api/quizzes/submit", { method: "POST", body: { quizId: id, answers, username: user } });
+            const rec = { quiz: quiz?.title || "Quiz #" + id, correct: r.correctAnswers, total: r.totalQuestions, pct: Math.round(r.scorePercentage), at: Date.now() };
+            store.set("qc_hist_" + user, [rec, ...store.get("qc_hist_" + user, [])].slice(0, 50));
+            result(r, rec);
+        } catch (e) { $("#main").innerHTML = `<div class="card empty">${esc(e.message)}<br><br><button class="btn p" id="rt">Retry submission</button></div>`; $("#rt").onclick = finish }
+    }
+    function result(r, rec) {
+        const { qs, ans, id } = run, pass = rec.pct >= PASS;
+        $("#main").innerHTML = `<div class="card view" style="max-width:720px;margin:auto;text-align:center"><h1>${pass ? "Well done!" : "Keep practising"}</h1><p style="color:var(--mute)">${esc(rec.quiz)}</p>
+  <div class="ring" style="--p:${rec.pct};--c:${pass ? "var(--ok)" : "var(--acc)"}"><div>${rec.pct}%</div></div>
+  <div class="stats"><span style="background:var(--okb);color:var(--ok)">${r.correctAnswers} correct</span><span style="background:var(--badb);color:var(--bad)">${r.wrongAnswers} wrong / skipped</span></div>
+  <div class="row" style="justify-content:center"><button class="btn p" onclick="go('/quiz/${id}')">Retake</button><button class="btn g" onclick="go('/')">All quizzes</button><button class="btn g" onclick="go('/leaderboard')">Leaderboard</button></div>
+  <h3 style="text-align:left;margin:30px 0 12px">Review answers</h3><div style="text-align:left">${qs.map((q, n) => `<div style="margin-bottom:18px"><strong>${n + 1}. ${esc(q.questionText)}</strong>${(q.options || []).map(o => { const isC = !!(o.correct ?? o.isCorrect); return `<div class="opt ${isC ? "ok" : ans[q.id] === o.id ? "no" : ""}" style="cursor:default;margin:6px 0"><span>${isC ? "✓" : ans[q.id] === o.id ? "✗" : "○"}</span><span>${esc(o.optionText)}${ans[q.id] === o.id ? " <em>(your answer)</em>" : ""}</span></div>`; }).join("")}${ans[q.id] ? "" : '<div class="hint">Not answered</div>'}</div>`).join("")}</div></div>`;
+        run = null;
+    }
+
+    /* ---------- Leaderboard & history ---------- */
+    async function leaderboard() {
+        $("#main").innerHTML = '<div class="view"><div class="hero"><div><h1>Leaderboard</h1><p>Top scores ranked by percentage & score across all quizzes.</p></div></div><div class="card scroll" id="lb"><div class="sk"></div></div></div>';
+        try {
+            let d = await api("/api/leaderboard"), medal = ["🥇", "🥈", "🥉"];
+            d.sort((a, b) => {
+                const pctA = (a.score / (a.totalQuestions || 1)) * 100;
+                const pctB = (b.score / (b.totalQuestions || 1)) * 100;
+                if (pctB !== pctA) return pctB - pctA;
+                if (b.score !== a.score) return b.score - a.score;
+                return (new Date(b.attemptedAt || 0)) - (new Date(a.attemptedAt || 0));
+            });
+            $("#lb").innerHTML = d.length ? `<table><thead><tr><th>#</th><th>Player</th><th>Quiz</th><th class="r">Score</th><th class="r">Date</th></tr></thead><tbody>${d.map((a, i) => {
+                const pct = Math.round(a.percentage ?? ((a.score / (a.totalQuestions || 1)) * 100));
+                return `<tr><td>${medal[i] || i + 1}</td><td><strong>${esc(a.user?.username || "Anonymous")}</strong></td><td>${esc(a.quiz?.title || "–")}</td><td class="r"><strong>${a.score}</strong>/${a.totalQuestions} <span style="font-size:0.85em;color:var(--mute)">(${pct}%)</span></td><td class="r">${a.attemptedAt ? new Date(a.attemptedAt).toLocaleDateString() : "–"}</td></tr>`;
+            }).join("")}</tbody></table>` : '<div class="empty">No scores recorded yet.</div>';
+        } catch (e) { $("#lb").innerHTML = `<div class="empty">${esc(e.message)}</div>` }
+    }
+    function history_() {
+        const h = store.get("qc_hist_" + user, []);
+        $("#main").innerHTML = `<div class="view"><div class="hero"><div><h1>My history</h1><p>Results saved on this device.</p></div>${h.length ? '<button class="btn g" id="ch">Clear</button>' : ""}</div><div class="card scroll">${h.length ? `<table><thead><tr><th>Quiz</th><th class="r">Score</th><th class="r">When</th></tr></thead><tbody>${h.map(a => `<tr><td>${esc(a.quiz)}</td><td class="r"><strong>${a.pct}%</strong> (${a.correct}/${a.total})</td><td class="r">${new Date(a.at).toLocaleString()}</td></tr>`).join("")}</tbody></table>` : '<div class="empty">Nothing yet – take a quiz!</div>'}</div></div>`;
+        if (h.length) $("#ch").onclick = async () => { if (await confirmBox("Clear history?", "This only affects this device.")) { store.set("qc_hist_" + user, []); history_() } };
+    }
+
+    /* ---------- Create quiz / questions (ADMIN ONLY) ---------- */
+    async function create(selectedQuizId = null) {
+        if (!isAdmin) {
+            toast("Access denied: You must be an ADMIN to create quizzes.", "e");
+            return go("/");
+        }
+        let list = []; try { list = await loadQuizzes(true) } catch {}
+        let cats = [];
+        try { cats = await api("/api/categories") } catch {
+            cats = [...new Map(list.filter(q => q.category).map(q => [q.category.id, q.category])).values()];
+        }
+        const LETTERS = ["A", "B", "C", "D", "E", "F"];
+
+        // Determine which quiz is currently selected
+        const activeQuizId = selectedQuizId ? +selectedQuizId : (list.length ? list[0].id : null);
+        const activeQuiz = list.find(q => q.id === activeQuizId) || list[0] || null;
+
+        $("#main").innerHTML = `<div class="view">
+  <div class="hero">
+    <div><h1>Quiz Management</h1><p>Create new quizzes, select a quiz, and manually add your questions.</p></div>
+    <button class="btn g" onclick="go('/')">← Back to Quizzes</button>
+  </div>
+
+  <div class="grid" style="grid-template-columns:repeat(auto-fit,minmax(330px,1fr));gap:20px">
+    <form class="card" id="qf">
+      <div style="margin-bottom:12px">
+        <span class="tag" style="background:var(--line);padding:3px 8px;border-radius:6px;font-size:0.75rem">Step 1</span>
+        <h3 style="margin:6px 0 2px">Create New Quiz</h3>
+        <p class="hint" style="margin:0">New quizzes start with 0 questions. You will add questions manually.</p>
+      </div>
+      <label for="qt1">Quiz Title</label><input id="qt1" required maxlength="120" placeholder="e.g. Java Fundamentals">
+      <label for="qd">Description</label><textarea id="qd" rows="2" placeholder="Brief summary of what this quiz covers..."></textarea>
+      <label for="qc">Category</label>
+      <select id="qc">${cats.map(c => `<option value="${c.id}">${esc(c.name)}</option>`).join("")}<option value="new">+ New category…</option></select>
+      <input id="nc" placeholder="New category name" hidden style="margin-top:8px">
+      <div class="err" id="e1" hidden></div>
+      <button class="btn p" style="margin-top:16px;width:100%">Create Quiz &amp; Add Questions</button>
+    </form>
+
+    <form class="card" id="pf">
+      <div style="margin-bottom:12px">
+        <span class="tag" style="background:var(--okb);color:var(--ok);padding:3px 8px;border-radius:6px;font-size:0.75rem">Step 2</span>
+        <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;margin-top:6px">
+          <h3 style="margin:0">Add Question to Quiz</h3>
+          ${activeQuiz ? `<button type="button" class="btn g" id="delQuizBtn" style="color:var(--bad);border-color:var(--bad);font-size:0.75rem;padding:4px 8px">Delete Quiz</button>` : ""}
+        </div>
+      </div>
+
+      <label for="ps" style="font-weight:700">Currently Editing Quiz:</label>
+      <select id="ps" style="border:2px solid var(--acc);background:var(--card);font-weight:600">${list.length ? list.map(q => `<option value="${q.id}" ${q.id === activeQuiz?.id ? "selected" : ""}>${esc(q.title)} (${q.questions?.length ?? 0} questions)</option>`).join("") : '<option value="">No quizzes exist yet - create one on the left</option>'}</select>
+
+      <label for="pq">Question Text</label>
+      <textarea id="pq" rows="2" required placeholder="e.g. Which of the following is not a Java keyword?"></textarea>
+
+      <label>Options <span style="text-transform:none;font-weight:400;color:var(--ok)">(Click 'Mark as Correct' for the right answer)</span></label>
+      <div id="oe"></div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:8px">
+        <button type="button" class="btn g" id="ao">+ Add Option</button>
+        <span class="hint" style="margin:0">At least 2 options required</span>
+      </div>
+      <div class="err" id="e2" hidden></div>
+      <button class="btn p" style="margin-top:16px;width:100%" ${activeQuiz ? "" : "disabled"}>Save Question to Quiz</button>
+    </form>
+  </div>
+
+  <div class="card" style="margin-top:24px">
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;flex-wrap:wrap;gap:10px">
+      <div>
+        <h3 style="margin:0" id="qSectionTitle">Questions in: <strong>${esc(activeQuiz?.title || "Selected Quiz")}</strong></h3>
+        <p class="hint" style="margin:4px 0 0">Verified correct answers are highlighted in green.</p>
+      </div>
+      <span id="qCountBadge" style="padding:4px 12px;border-radius:99px;background:var(--line);font-size:0.85rem;font-weight:700">0 questions</span>
+    </div>
+    <div id="existingQuestionsList">
+      <div class="sk" style="height:100px"></div>
+    </div>
+  </div>
+</div>`;
+
+        // Option builder state
+        let optState = [
+            { text: "", isCorrect: true },
+            { text: "", isCorrect: false },
+            { text: "", isCorrect: false },
+            { text: "", isCorrect: false }
+        ];
+
+        const oe = $("#oe");
+        function renderOptions() {
+            oe.innerHTML = "";
+            optState.forEach((item, idx) => {
+                const row = document.createElement("div");
+                row.className = "opts-e" + (item.isCorrect ? " is-correct" : "");
+                row.innerHTML = `
+                    <span class="opt-badge">${LETTERS[idx] || idx + 1}</span>
+                    <input type="text" placeholder="Option ${LETTERS[idx] || idx + 1} text" value="${esc(item.text)}" aria-label="Option ${LETTERS[idx] || idx + 1}">
+                    <button type="button" class="correct-btn" title="${item.isCorrect ? 'Currently marked as correct answer' : 'Click to mark as correct answer'}">
+                        ${item.isCorrect ? "✓ Correct Answer" : "Mark as Correct"}
+                    </button>
+                    ${optState.length > 2 ? `<button type="button" class="del-opt-btn" title="Remove option">✕</button>` : ""}
+                `;
+                const input = row.querySelector("input");
+                input.oninput = () => { item.text = input.value };
+                const correctBtn = row.querySelector(".correct-btn");
+                correctBtn.onclick = () => {
+                    optState.forEach(s => s.isCorrect = false);
+                    item.isCorrect = true;
+                    renderOptions();
+                };
+                const delBtn = row.querySelector(".del-opt-btn");
+                if (delBtn) {
+                    delBtn.onclick = () => {
+                        const wasCorrect = item.isCorrect;
+                        optState.splice(idx, 1);
+                        if (wasCorrect && optState.length > 0) optState[0].isCorrect = true;
+                        renderOptions();
+                    };
+                }
+                oe.append(row);
+            });
+        }
+        renderOptions();
+
+        $("#ao").onclick = () => {
+            if (optState.length >= 6) return toast("Maximum 6 options allowed per question.", "e");
+            optState.push({ text: "", isCorrect: false });
+            renderOptions();
+        };
+
+        async function loadExistingQuestions(quizId) {
+            const listEl = $("#existingQuestionsList");
+            const badge = $("#qCountBadge");
+            const titleEl = $("#qSectionTitle");
+            if (!listEl) return;
+            if (!quizId) {
+                listEl.innerHTML = '<div class="empty">No quiz selected. Create a quiz on the left first.</div>';
+                if (badge) badge.textContent = "0 questions";
+                return;
+            }
+            const currentQ = list.find(q => q.id === +quizId);
+            if (titleEl) {
+                titleEl.innerHTML = `Questions in: <strong>${esc(currentQ?.title || "Selected Quiz")}</strong>`;
+            }
+            listEl.innerHTML = '<div class="sk" style="height:90px"></div>';
+            try {
+                const qs = await api(`/api/quizzes/${quizId}/questions`);
+                if (badge) badge.textContent = `${qs.length} question${qs.length === 1 ? "" : "s"}`;
+                if (!qs.length) {
+                    listEl.innerHTML = `
+                    <div class="empty" style="padding:32px 16px;border:1.5px dashed var(--line);border-radius:12px;background:var(--bg)">
+                        <h4 style="margin:0 0 6px;color:var(--ink);font-size:1.15rem">0 questions in "${esc(currentQ?.title || 'this quiz')}"</h4>
+                        <p style="margin:0 0 16px;color:var(--mute);font-size:0.9rem">This quiz is currently empty. Questions are never added automatically. Use the "Add Question" form above to manually add your questions.</p>
+                        <button class="btn p" type="button" onclick="$('#pq').focus()">+ Add First Question</button>
+                    </div>`;
+                    return;
+                }
+                listEl.innerHTML = qs.map((q, qIdx) => {
+                    const opts = q.options || [];
+                    return `<div class="q-item">
+                        <div class="q-item-top">
+                            <div><strong style="font-size:1.02rem">Q${qIdx + 1}. ${esc(q.questionText)}</strong></div>
+                            <button type="button" class="btn g" style="color:var(--bad);border-color:var(--bad);font-size:0.75rem;padding:4px 9px" onclick="deleteQuestion(${q.id}, ${quizId})">Delete</button>
+                        </div>
+                        <div class="q-item-opts">
+                            ${opts.map((o, oIdx) => {
+                                const isC = !!(o.correct ?? o.isCorrect);
+                                return `<div class="q-item-opt ${isC ? "is-correct" : ""}">
+                                    <span>${LETTERS[oIdx] || oIdx + 1}.</span>
+                                    <span>${esc(o.optionText)}</span>
+                                    ${isC ? `<span style="margin-left:auto;font-size:0.75rem;padding:2px 7px;border-radius:4px;background:var(--ok);color:#fff">✓ Correct</span>` : ""}
+                                </div>`;
+                            }).join("")}
+                        </div>
+                    </div>`;
+                }).join("");
+            } catch (err) {
+                listEl.innerHTML = `<div class="empty">${esc(err.message)}</div>`;
+            }
+        }
+        window.loadExistingQuestions = loadExistingQuestions;
+
+        const selQuiz = $("#ps");
+        if (selQuiz) {
+            selQuiz.onchange = () => {
+                const qid = selQuiz.value;
+                if (qid) {
+                    history.replaceState(null, "", `#/create/${qid}`);
+                    loadExistingQuestions(qid);
+                }
+            };
+            if (activeQuizId) {
+                loadExistingQuestions(activeQuizId);
+            } else {
+                loadExistingQuestions(null);
+            }
+        }
+
+        const delQuizBtn = $("#delQuizBtn");
+        if (delQuizBtn && selQuiz) {
+            delQuizBtn.onclick = () => {
+                const qid = selQuiz.value;
+                const qTitle = selQuiz.options[selQuiz.selectedIndex]?.text || "Selected Quiz";
+                if (qid) deleteQuiz(qid, qTitle);
+            };
+        }
+
+        const fail = (id, m) => { const e = $(id); e.textContent = m; e.hidden = !m };
+        $("#qc").onchange = e => $("#nc").hidden = e.target.value !== "new";
+
+        $("#qf").onsubmit = async e => {
+            e.preventDefault(); fail("#e1", ""); try {
+                let cid = $("#qc").value;
+                if (cid === "new" || !cid) {
+                    const n = $("#nc").value.trim();
+                    if (!n) return fail("#e1", "Enter a category name.");
+                    cid = (await api("/api/categories", { method: "POST", body: { name: n } })).id;
+                }
+                const created = await api("/api/quizzes", { method: "POST", body: { title: $("#qt1").value.trim(), description: $("#qd").value.trim(), categoryId: +cid } });
+                toast(`Quiz "${created.title}" created with 0 questions! Add your questions below.`, "s");
+                quizzes = null;
+                go(`/create/${created.id}`);
+            } catch (x) { fail("#e1", x.message) }
+        };
+
+        $("#pf").onsubmit = async e => {
+            e.preventDefault(); fail("#e2", "");
+            const qid = $("#ps").value;
+            if (!qid) return fail("#e2", "Please select or create a quiz first.");
+
+            const qText = $("#pq").value.trim();
+            if (!qText) return fail("#e2", "Please enter the question text.");
+
+            const rows = optState.map(o => ({
+                optionText: (o.text || "").trim(),
+                correct: !!o.isCorrect,
+                isCorrect: !!o.isCorrect
+            })).filter(o => o.optionText.length > 0);
+
+            if (rows.length < 2) return fail("#e2", "Please provide at least 2 non-empty options.");
+            if (!rows.some(o => o.correct)) return fail("#e2", "Please mark one option as the correct answer.");
+
+            try {
+                await api(`/api/quizzes/${qid}/questions`, {
+                    method: "POST",
+                    body: { questionText: qText, options: rows }
+                });
+                toast("Question added successfully to this quiz!", "s");
+                quizzes = null;
+                $("#pq").value = "";
+                optState = [
+                    { text: "", isCorrect: true },
+                    { text: "", isCorrect: false },
+                    { text: "", isCorrect: false },
+                    { text: "", isCorrect: false }
+                ];
+                renderOptions();
+                // Reload quizzes list to update count in dropdown and local cache
+                list = await loadQuizzes(true);
+                if (selQuiz) {
+                    selQuiz.innerHTML = list.map(q => `<option value="${q.id}" ${q.id === +qid ? "selected" : ""}>${esc(q.title)} (${q.questions?.length ?? 0} questions)</option>`).join("");
+                }
+                loadExistingQuestions(qid);
+            } catch (x) {
+                fail("#e2", x.message);
+            }
+        };
+    }
+
+    addEventListener("hashchange", render); render();
+</script>
+</body>
+</html>
