@@ -368,7 +368,8 @@
 
     /* ---------- Leaderboard & history ---------- */
     async function leaderboard() {
-        $("#main").innerHTML = '<div class="view"><div class="hero"><div><h1>Leaderboard</h1><p>Top scores ranked by percentage & score across all quizzes.</p></div></div><div class="card scroll" id="lb"><div class="sk"></div></div></div>';
+        const backBtn = !user ? '<button class="btn g" onclick="go(\'/login\')">← Go Back</button>' : '';
+        $("#main").innerHTML = `<div class="view"><div class="hero"><div><h1>Leaderboard</h1><p>Top scores ranked by percentage & score across all quizzes.</p></div>${backBtn}</div><div class="card scroll" id="lb"><div class="sk"></div></div></div>`;
         try {
             let d = await api("/api/leaderboard"), medal = ["🥇", "🥈", "🥉"];
             d.sort((a, b) => {

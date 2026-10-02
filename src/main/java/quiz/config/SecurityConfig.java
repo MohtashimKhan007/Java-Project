@@ -1,22 +1,3 @@
-//package quiz.config;
-//
-//import org.springframework.context.annotation.Bean;
-//import org.springframework.context.annotation.Configuration;
-//import org.springframework.security.config.Customizer;
-//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
-//import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-//import org.springframework.security.crypto.password.PasswordEncoder;
-//import org.springframework.security.web.SecurityFilterChain;
-//
-//@Configuration
-//public class SecurityConfig {
-//
-//
-//    @Bean
-//    public PasswordEncoder passwordEncoder(){
-//        return new BCryptPasswordEncoder();
-//    }
-//}
 
 package quiz.config;
 
@@ -47,10 +28,10 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable()) // REST APIs ke liye CSRF disable taaki requests block na ho
                 .addFilterBefore(roleAuthFilter, UsernamePasswordAuthenticationFilter.class)
                 .authorizeHttpRequests(auth -> auth
-                        // 1. Frontend aur Public endpoints bina login ke chalenge (Admin endpoints secured with @PreAuthorize)
+                        // frontend and public endpoints will work without authentication
                         .requestMatchers("/", "/index.html", "/api/auth/**", "/api/leaderboard/**", "/api/quizzes/**", "/api/categories/**", "/css/**", "/js/**").permitAll()
 
-                        // 2. Baaki sabhi endpoints authenticated hone chahiye
+
                         .anyRequest().authenticated()
                 )
                 .formLogin(form -> form.disable())
@@ -61,6 +42,6 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder(){
-        return new BCryptPasswordEncoder(); // Password ko BCrypt se strong hash karega (Database hack hone par bhi safe)
+        return new BCryptPasswordEncoder();
     }
 }
